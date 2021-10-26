@@ -1,3 +1,9 @@
+# Work In Progress - Do Not Use
+
+## Why WIP?
+
+This is a test repository meant to update `python-vagrant` to Python3.
+
 ## Introduction
 
 Python-vagrant is a python module that provides a _thin_ wrapper around the
@@ -114,7 +120,7 @@ where it sends its stdout and stderr.
 
 The stdout and stderr of the underlying vagrant process can be silenced by
 using the `out_cm` and `err_cm` parameters, or by using the `quiet_stdout` and
-`quiet_stderr` parameters of `Vagrant.__init__`.  
+`quiet_stderr` parameters of `Vagrant.__init__`.
 
 Using `out_cm` and `err_cm` to redirect stdout and stderr to `/dev/null`:
 
@@ -220,6 +226,6 @@ output is sent -- console or devnull:
     >>> # Demonstrate a quiet Vagrant using devnull_cm directly
     ... v4 = vagrant.Vagrant(vagrantfile, out_cm=vagrant.devnull_cm)
     >>> v4.destroy() # output to console
-    >>> 
+    >>>
 
 
