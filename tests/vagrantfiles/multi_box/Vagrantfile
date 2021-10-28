@@ -3,13 +3,11 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
-boxes = ['precise32', 'precise64']
-
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  boxes.each do |box|
-    config.vm.define box do |conf|
-      conf.vm.box = box
-      conf.vm.box_url = "http://files.vagrantup.com/#{box}.box"
+  (1..2).each do |i|
+    config.vm.define "multifocal0#{i}" do |webserver|
+      webserver.vm.box = "ubuntu/focal64"
+      webserver.vm.hostname = "multifocal0#{i}"
     end
   end
 end
