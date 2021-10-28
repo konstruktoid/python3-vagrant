@@ -9,7 +9,7 @@ with open("vagrant/__init__.py", encoding="utf-8") as fh:
     for line in fh:
         m = re.match(r"^__version__ = .*\"$", line)
         if m:
-            version = re.split(" ", line)[2].rstrip()
+            version = re.split(" ", line)[2].rstrip().strip('"')
             break
 
 setup(
