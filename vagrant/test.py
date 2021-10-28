@@ -14,8 +14,7 @@ class VagrantTestCase(TestCase):
 
     vagrant_boxes: An iterable of vagrant boxes. If empty or None, all boxes will be used. Defaults to []
     vagrant_root: The root directory that holds a Vagrantfile for configuration. Defaults to the working directory
-    restart_boxes: If True, the boxes will be restored to their initial states between each test, otherwise the boxes
-            will remain up. Defaults to False
+    restart_boxes: If True, the boxes will be restored to their initial states between each test, otherwise the boxes will remain up. Defaults to False
     """
 
     vagrant_boxes = []
@@ -40,38 +39,36 @@ class VagrantTestCase(TestCase):
                 self.vagrant_boxes = boxes
         super(VagrantTestCase, self).__init__(*args, **kwargs)
 
-    def assertBoxStatus(self, box, status):
+    def assert_box_status(self, box, status):
         """Assertion for a box status"""
         box_status = [s.state for s in self.vagrant.status() if s.name == box][0]
         if box_status != status:
-            self.failureException(
-                "{} has status {}, not {}".format(box, box_status, status)
-            )
+            self.failureException(f"{box} has status {box_status}, not {status}")
 
-    def assertBoxUp(self, box):
+    def assert_box_up(self, box):
         """Assertion for a box being up"""
-        self.assertBoxStatus(box, Vagrant.RUNNING)
+        self.assert_box_status(box, Vagrant.RUNNING)
 
-    def assertBoxSuspended(self, box):
+    def assert_box_suspended(self, box):
         """Assertion for a box being up"""
-        self.assertBoxStatus(box, Vagrant.SAVED)
+        self.assert_box_status(box, Vagrant.SAVED)
 
-    def assertBoxHalted(self, box):
+    def assert_box_halted(self, box):
         """Assertion for a box being up"""
-        self.assertBoxStatus(box, Vagrant.POWEROFF)
+        self.assert_box_status(box, Vagrant.POWEROFF)
 
-    def assertBoxNotCreated(self, box):
+    def assert_box_not_created(self, box):
         """Assertion for a box being up"""
-        self.assertBoxStatus(box, Vagrant.NOT_CREATED)
+        self.assert_box_status(box, Vagrant.NOT_CREATED)
 
     def run(self, result=None):
         """Override run to have provide a hook into an alternative to tearDownClass with a reference to self"""
-        self.setUpOnce()
+        self.set_up_once()
         run = super(VagrantTestCase, self).run(result)
-        self.tearDownOnce()
+        self.tear_down_once()
         return run
 
-    def setUpOnce(self):
+    def set_up_once(self):
         """Collect the box states before starting"""
         for box_name in self.vagrant_boxes:
             box_state = [s.state for s in self.vagrant.status() if s.name == box_name][
@@ -79,7 +76,7 @@ class VagrantTestCase(TestCase):
             ]
             self.__initial_box_statuses[box_name] = box_state
 
-    def tearDownOnce(self):
+    def tear_down_once(self):
         """Restore all boxes to their initial states after running all tests, unless tearDown handled it already"""
         if not self.restart_boxes:
             self.restore_box_states()

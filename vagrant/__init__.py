@@ -16,7 +16,7 @@ import contextlib
 import itertools
 import os
 import re
-import subprocess
+import subprocess  # noqa
 import sys
 import logging
 
@@ -26,7 +26,7 @@ from . import compat
 
 # python package version
 # should match r"^__version__ = '(?P<version>[^']+)'$" for setup.py
-__version__ = "0.5.15"
+__version__ = "0.5.16"
 
 
 log = logging.getLogger(__name__)
@@ -69,8 +69,6 @@ def which(program):
     if os.path.dirname(program):
         if is_exe(program):
             return program
-        else:
-            return None
 
     # Are we on windows?
     # http://stackoverflow.com/questions/1325581/how-do-i-check-if-im-running-on-windows-in-python
@@ -118,8 +116,8 @@ def which(program):
     # Check each combination of path, program, and extension, returning
     # the first combination that exists and is executable.
     for path in paths:
-        for f in files:
-            fpath = os.path.normcase(os.path.join(path, f))
+        for filehandle in files:
+            fpath = os.path.normcase(os.path.join(path, filehandle))
             if is_exe(fpath):
                 return fpath
 
@@ -128,11 +126,12 @@ def which(program):
 
 # The full path to the vagrant executable, e.g. '/usr/bin/vagrant'
 def get_vagrant_executable():
+    """Get the Vagrant executable path."""
     return which("vagrant")
 
 
 if get_vagrant_executable() is None:
-    log.warn(VAGRANT_NOT_FOUND_WARNING)
+    log.warning(VAGRANT_NOT_FOUND_WARNING)
 
 
 # Classes for listings of Statuses, Boxes, and Plugins
@@ -160,8 +159,8 @@ def stderr_cm():
 @contextlib.contextmanager
 def devnull_cm():
     """Redirect the stdout or stderr of the child process to /dev/null."""
-    with open(os.devnull, "w") as fh:
-        yield fh
+    with open(os.devnull, "w", encoding="utf8") as filehandle:
+        yield filehandle
 
 
 @contextlib.contextmanager
@@ -186,11 +185,11 @@ def make_file_cm(filename, mode="a"):
     """
 
     @contextlib.contextmanager
-    def cm():
-        with open(filename, mode=mode) as fh:
-            yield fh
+    def contextmanager():
+        with open(filename, mode=mode, encoding="utf-8") as filehandle:
+            yield filehandle
 
-    return cm
+    return contextmanager
 
 
 class Vagrant(object):
@@ -219,11 +218,8 @@ class Vagrant(object):
     SHUTOFF = "shutoff"
 
     BASE_BOXES = {
-        "ubuntu-Lucid32": "http://files.vagrantup.com/lucid32.box",
-        "ubuntu-lucid32": "http://files.vagrantup.com/lucid32.box",
-        "ubuntu-lucid64": "http://files.vagrantup.com/lucid64.box",
-        "ubuntu-precise32": "http://files.vagrantup.com/precise32.box",
-        "ubuntu-precise64": "http://files.vagrantup.com/precise64.box",
+        "ubuntu-focal64": "https://app.vagrantup.com/ubuntu/boxes/focal64/versions/20210907.0.0/providers/virtualbox.box",
+        "debian-bullseye64": "https://app.vagrantup.com/debian/boxes/bullseye64/versions/11.20211018.1/providers/virtualbox.box",
     }
 
     def __init__(
@@ -288,12 +284,12 @@ class Vagrant(object):
         Return the installed vagrant version, as a string, e.g. '1.5.0'
         """
         output = self._run_vagrant_command(["--version"])
-        m = re.search(r"^Vagrant (?P<version>.+)$", output)
-        if m is None:
+        vagrant_version = re.search(r"^Vagrant (?P<version>.+)$", output)
+        if vagrant_version is None:
             raise Exception(
-                "Failed to parse vagrant --version output. output={!r}".format(output)
+                f"Failed to parse vagrant --version output. output={output}"
             )
-        return m.group("version")
+        return vagrant_version.group("version")
 
     def init(self, box_name=None, box_url=None):
         """
@@ -651,7 +647,7 @@ class Vagrant(object):
     def user_hostname(self, vm_name=None):
         """
         Return a string combining user and hostname, e.g. 'vagrant@127.0.0.1'.
-        This string is suitable for use in an ssh commmand.  If user is None
+        This string is suitable for use in an ssh command.  If user is None
         or empty, it will be left out of the string, e.g. 'localhost'.  If
         hostname is None, have bigger problems.
 
@@ -705,15 +701,14 @@ class Vagrant(object):
 
         Example output:
 
-            [Box(name='precise32', provider='virtualbox', version='0'),
-             Box(name='precise64', provider='virtualbox', version=None),
-             Box(name='trusty64', provider='virtualbox', version=None)]
+            [Box(name='focal64', provider='virtualbox', version='0'),
+             Box(name='bullseye64', provider='virtualbox', version=None)]
 
         Implementation Details:
 
         Example machine-readable box listing output:
 
-            1424141572,,box-name,precise64
+            1424141572,,box-name,focal64
             1424141572,,box-provider,virtualbox
             1424141572,,box-version,0
             1424141572,,box-name,python-vagrant-base
@@ -737,6 +732,8 @@ class Vagrant(object):
         vagrantfile=None: Vagrantfile to package with this box
         """
         cmd = ["package", vm_name]
+        if base is not None:
+            cmd += ["--base", base]
         if output is not None:
             cmd += ["--output", output]
         if vagrantfile is not None:
@@ -754,10 +751,10 @@ class Vagrant(object):
         """
         This command is the inverse of vagrant snapshot push: it will restore the pushed state.
         """
-        NO_SNAPSHOTS_PUSHED = "No pushed snapshot found!"
+        no_snapshots_pushed = "No pushed snapshot found!"
         output = self._run_vagrant_command(["snapshot", "pop"])
-        if NO_SNAPSHOTS_PUSHED in output:
-            raise RuntimeError(NO_SNAPSHOTS_PUSHED)
+        if no_snapshots_pushed in output:
+            raise RuntimeError(no_snapshots_pushed)
 
     def snapshot_save(self, name):
         """
@@ -776,9 +773,9 @@ class Vagrant(object):
         """
         This command will list all the snapshots taken.
         """
-        NO_SNAPSHOTS_TAKEN = "No snapshots have been taken yet!"
+        no_snapshots_taken = "No snapshots have been taken yet!"
         output = self._run_vagrant_command(["snapshot", "list"])
-        if NO_SNAPSHOTS_TAKEN in output:
+        if no_snapshots_taken in output:
             return []
         else:
             return output.splitlines()
@@ -811,7 +808,7 @@ class Vagrant(object):
         boxes = []
         # initialize box values
         name = provider = version = None
-        for timestamp, target, kind, data in self._parse_machine_readable_output(
+        for _timestamp, _target, kind, data in self._parse_machine_readable_output(
             output
         ):
             if kind == "box-name":
@@ -887,14 +884,14 @@ class Vagrant(object):
         """
         Remove Vagrant from the equation for unit testing.
         """
-        ENCODED_COMMA = "%!(VAGRANT_COMMA)"
+        encoded_comma = "%!(VAGRANT_COMMA)"
 
         plugins = []
         # initialize plugin values
         name = None
         version = None
         system = False
-        for timestamp, target, kind, data in self._parse_machine_readable_output(
+        for _timestamp, _target, kind, data in self._parse_machine_readable_output(
             output
         ):
             if kind == "plugin-name":
@@ -907,8 +904,8 @@ class Vagrant(object):
                 version = None
                 system = False
             elif kind == "plugin-version":
-                if ENCODED_COMMA in data:
-                    version, etc = data.split(ENCODED_COMMA)
+                if encoded_comma in data:
+                    version, etc = data.split(encoded_comma)
                     system = etc.strip().lower() == "system"
                 else:
                     version = data
@@ -974,7 +971,7 @@ class Vagrant(object):
         See https://github.com/bitprophet/ssh/blob/master/ssh/config.py for a
         more compliant ssh config file parser.
         """
-        conf = dict()
+        conf = {}
         started_parsing = False
         for line in ssh_config.splitlines():
             if line.strip().startswith("Host ") and not started_parsing:
@@ -994,7 +991,7 @@ class Vagrant(object):
             raise RuntimeError(VAGRANT_NOT_FOUND_WARNING)
 
         # filter out None args.  Since vm_name is None in non-Multi-VM
-        # environments, this quitely removes it from the arguments list
+        # environments, this quietly removes it from the arguments list
         # when it is not specified.
         return [self._vagrant_exe] + [arg for arg in args if arg is not None]
 
@@ -1007,7 +1004,7 @@ class Vagrant(object):
         # Make subprocess command
         command = self._make_vagrant_command(args)
         with self.out_cm() as out_fh, self.err_cm() as err_fh:
-            subprocess.check_call(
+            subprocess.check_call(  # noqa
                 command, cwd=self.root, stdout=out_fh, stderr=err_fh, env=self.env
             )
 
@@ -1022,7 +1019,7 @@ class Vagrant(object):
         command = self._make_vagrant_command(args)
         with self.err_cm() as err_fh:
             return compat.decode(
-                subprocess.check_output(
+                subprocess.check_output(  # noqa
                     command, cwd=self.root, env=self.env, stderr=err_fh
                 )
             )
@@ -1037,7 +1034,6 @@ class Vagrant(object):
         :return: generator that yields each line of the command stdout.
         :rtype: generator iterator
         """
-        py3 = sys.version_info > (3, 0)
 
         # Make subprocess command
         command = self._make_vagrant_command(args)
@@ -1053,14 +1049,14 @@ class Vagrant(object):
 
             # Iterate over output lines.
             # See http://stackoverflow.com/questions/2715847/python-read-streaming-input-from-subprocess-communicate#17698359
-            p = subprocess.Popen(**sp_args)
-            with p.stdout:
-                for line in iter(p.stdout.readline, b""):
+            sub_popen = subprocess.Popen(**sp_args)  # noqa
+            with sub_popen.stdout:
+                for line in iter(sub_popen.stdout.readline, b""):
                     yield compat.decode(line)  # if PY3 decode bytestrings
-            p.wait()
+            sub_popen.wait()
             # Raise CalledProcessError for consistency with _call_vagrant_command
-            if p.returncode != 0:
-                raise subprocess.CalledProcessError(p.returncode, command)
+            if sub_popen.returncode != 0:
+                raise subprocess.CalledProcessError(sub_popen.returncode, command)
 
 
 class SandboxVagrant(Vagrant):

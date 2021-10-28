@@ -1,7 +1,7 @@
 """
 Tests for the various functionality provided by the VagrantTestCase class
-
-There are a handful of classes to try to provide multiple different varying samples of possible setups
+There are a handful of classes to try to provide multiple different varying
+samples of possible setups
 """
 import os
 from vagrant import Vagrant
@@ -9,6 +9,7 @@ from vagrant.test import VagrantTestCase
 
 
 def get_vagrant_root(test_vagrant_root_path):
+    """Return path to Vagrantfiles."""
     return (
         os.path.dirname(os.path.realpath(__file__))
         + "/vagrantfiles/"
@@ -44,7 +45,7 @@ class SingleBoxTests(VagrantTestCase):
 class SpecificMultiBoxTests(VagrantTestCase):
     """Tests for a multiple box setup where only some of the boxes are to be on"""
 
-    vagrant_boxes = ["precise32"]
+    vagrant_boxes = ["multifocal01"]
     vagrant_root = MULTI_BOX
 
     def test_all_boxes_up(self):
@@ -57,6 +58,6 @@ class SpecificMultiBoxTests(VagrantTestCase):
         """Tests that the boxes not listed are not brought up"""
         for box_name in [s.name for s in self.vagrant.status()]:
             if box_name in self.vagrant_boxes:
-                self.assertBoxUp(box_name)
+                self.assert_box_up(box_name)
             else:
-                self.assertBoxNotCreated(box_name)
+                self.assert_box_not_created(box_name)
