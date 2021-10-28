@@ -6,4 +6,7 @@ flake8-bandit
 flake8-bugbear
 flake8-deprecated
 flake8-executable
+nose
+nose-cov
+rednose
 safety
