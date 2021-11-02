@@ -429,10 +429,10 @@ class Vagrant(object):
         self._cached_conf[vm_name] = None  # remove cached configuration
 
     def ssh(self, vm_name=None):
-        '''
+        """
         Login to the machine.
-        '''
-        self._call_vagrant_command(['ssh', vm_name])
+        """
+        self._call_vagrant_command(["ssh", vm_name])
         self._cached_conf[vm_name] = None  # remove cached configuration
 
     def resume(self, vm_name=None):
@@ -802,7 +802,7 @@ class Vagrant(object):
         """
         cmd = ["ssh", vm_name, "--command", command]
         if extra_ssh_args is not None:
-            cmd += ["--", extra_ssh_args]
+            cmd += ["--"] + extra_ssh_args.split(" ")
 
         return self._run_vagrant_command(cmd)
 
