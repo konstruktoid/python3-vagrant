@@ -849,7 +849,7 @@ class Vagrant(object):
         Removes the box matching name and provider. It is an error if no box
         matches name and provider.
         """
-        self._call_vagrant_command(["box", "remove", name, provider])
+        self._call_vagrant_command(["box", "remove", "--force", name, provider])
 
     def plugin_list(self):
         """
