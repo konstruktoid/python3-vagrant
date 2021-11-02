@@ -309,9 +309,9 @@ class Vagrant(object):
 
     def up(
         self,
+        vm_name=None,
         no_provision=False,
         provider=None,
-        vm_name=None,
         provision=None,
         provision_with=None,
         stream_output=False,
