@@ -615,40 +615,50 @@ def test_ssh_command():
 
 
 @with_setup(make_setup_vm(), teardown_vm)
+def fail_test_ssh_command():
+    """
+    Fail a test executing a command via ssh on a vm.
+    """
+    vexe = vagrant.Vagrant(TD)
+    vexe.up()
+    output = vexe.ssh(command="lsb_release -is")
+    assert not output.strip() == "Debian"
+
+
+@with_setup(make_setup_vm(), teardown_vm)
 def test_ssh_command_one_option():
-    '''
+    """
     Test executing a command via ssh on a vm with one extra ssh option
-    '''
-    v = vagrant.Vagrant(TD)
-    v.up()
+    """
+    vexe = vagrant.Vagrant(TD)
+    vexe.up()
     # Using an argument that won't change the behavior of ssh
-    output = v.ssh(command='echo hello', extra_ssh_args='-4')
-    assert output.strip() == 'hello'
+    output = vexe.ssh(command="id -u", extra_ssh_args="-4")
+    assert output.strip() == "1000"
 
 
 @with_setup(make_setup_vm(), teardown_vm)
 def test_ssh_command_one_option_with_parameter():
-    '''
-    Test executing a command via ssh on a vm with one extra ssh argument that takes a parmaeter.
-    '''
-    v = vagrant.Vagrant(TD)
-    v.up()
+    """
+    Test executing a command via ssh on a vm with one extra ssh argument that takes a parameter.
+    """
+    vexe = vagrant.Vagrant(TD)
+    vexe.up()
     # Using an argument that won't change the behavior of ssh
-    output = v.ssh(command='echo hello', extra_ssh_args='-l vagrant')
-    assert output.strip() == 'hello'
+    output = vexe.ssh(command="id -u", extra_ssh_args="-l vagrant")
+    assert output.strip() == "1000"
 
 
 @with_setup(make_setup_vm(), teardown_vm)
 def test_ssh_command_multiple_options():
-    '''
+    """
     Test executing a command via ssh on a vm with two extra ssh arguments.
-    '''
-    v = vagrant.Vagrant(TD)
-    v.up()
+    """
+    vexe = vagrant.Vagrant(TD)
+    vexe.up()
     # Using arguments that won't change the behavior of ssh
-    output = v.ssh(command='echo hello', extra_ssh_args='-l vagrant -4 -a')
-    assert output.strip() == 'hello'
-
+    output = vexe.ssh(command="id -u", extra_ssh_args="-l vagrant -4 -a")
+    assert output.strip() == "1000"
 
 
 @with_setup(make_setup_vm(MULTIVM_VAGRANTFILE), teardown_vm)
