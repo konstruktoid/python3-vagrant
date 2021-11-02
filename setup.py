@@ -20,6 +20,7 @@ setup(
     long_description=open(
         os.path.join(os.path.dirname(__file__), "README.md"), encoding="utf-8"
     ).read(),
+    long_description_content_type="text/markdown",
     keywords="python virtual machine box vagrant virtualbox vagrantfile",
     url="https://github.com/konstruktoid/python3-vagrant",
     author="Thomas Sjögren",
