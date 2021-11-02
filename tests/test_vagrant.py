@@ -67,9 +67,9 @@ def list_box_names():
         # Vagrant 1.8 added additional fields to the --machine-readable output,
         # so unpack the fields according to the number of separators found.
         if line.count(",") == 3:
-            timestamp, _, kind, data = line.split(",")
+            _timestamp, _, kind, data = line.split(",")
         else:
-            timestamp, _, kind, data, extra_data = line.split(",")
+            _timestamp, _, kind, data, _extra_data = line.split(",")
         if kind == "box-name":
             box_names.append(data.strip())
     return box_names
