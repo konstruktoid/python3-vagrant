@@ -1,8 +1,19 @@
-# Work In Progress - Do Not Use
+# Python3-vagrant
 
-## Why WIP?
+## What is python3-vagrant?
 
-This is a test repository meant to update `python-vagrant` to Python3.
+```console
+Work In Progress
+```
+
+This is a test repository meant to update `python-vagrant` to Python3 and adapt
+to the [Black](https://github.com/psf/black) code formatter.
+
+This code is *not* availably on the Python Package Index.
+
+```console
+Work In Progress
+```
 
 ## Introduction
 
