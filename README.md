@@ -9,7 +9,7 @@ Work In Progress
 This is a test repository meant to update `python-vagrant` to Python3 and adapt
 to the [Black](https://github.com/psf/black) code formatter.
 
-This code is *not* availably on the Python Package Index.
+This code is *not* available on the Python Package Index.
 
 ```console
 Work In Progress
