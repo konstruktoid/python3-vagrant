@@ -18,6 +18,7 @@ import os
 import re
 import subprocess  # noqa
 import sys
+import time
 import logging
 
 # local
@@ -573,6 +574,14 @@ class Vagrant(object):
         if self._cached_conf.get(vm_name) is None or ssh_config is not None:
             if ssh_config is None:
                 ssh_config = self.ssh_config(vm_name=vm_name)
+                if ssh_config is None:
+                    tries = 0
+                    while tries <= 20:
+                        ssh_config = self.ssh_config(vm_name=vm_name)
+                        if ssh_config:
+                            break
+                        tries += 1
+                        time.sleep(30)
             conf = self._parse_config(ssh_config)
             self._cached_conf[vm_name] = conf
 
