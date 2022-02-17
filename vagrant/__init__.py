@@ -815,6 +815,43 @@ class Vagrant(object):
         self._call_vagrant_command(["ssh", vm_name])
         self._cached_conf[vm_name] = None  # remove cached configuration
 
+    def winrm(self, command=None, vm_name=None):
+        """
+        Execute a command via winrm on the vm specified.
+        command: The command to execute via winrm.
+        Returns the output of running the command.
+
+        vagrant winrm [options] [name|id]
+
+        -c, --command COMMAND            Execute a WinRM command directly
+        """
+
+        cmd = ["winrm", "--command", command, vm_name]
+
+        return self._run_vagrant_command(cmd)
+
+    def winrm_config(self, vm_name=None):
+        """
+        Return the output of 'vagrant winrm-config'.
+        Raises an Exception if the Vagrant box has not yet been created or
+        has been destroyed.
+
+        vm_name: required in a multi-VM environment.
+
+        Example output:
+            Host win10
+              HostName 127.0.0.1
+              User vagrant
+              Password vagrant
+              Port 55985
+              RDPHostName 127.0.0.1
+              RDPPort 53389
+              RDPUser vagrant
+              RDPPassword vagrant
+        """
+        # capture winrm configuration from vagrant
+        return self._run_vagrant_command(["winrm-config", vm_name])
+
     def _parse_box_list(self, output):
         """
         Remove Vagrant usage for unit testing
